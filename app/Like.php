@@ -4,7 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class User extends Model
+class Like extends Model
 {
     //
+    protected $table = 'likes';
 }
