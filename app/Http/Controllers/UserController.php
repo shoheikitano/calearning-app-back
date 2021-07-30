@@ -20,8 +20,7 @@ class UserController extends Controller
         $user->job = $request->job_id;
         $user->profile = $request->profile;
         $result = $user->save();
-        return [
-            'user_name' => $user->user_name,
-        ];
+        return User::where('user_name', $request->user_name)
+            ->where('password', $request->password)->first();
     }
 }
