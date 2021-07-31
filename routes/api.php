@@ -29,4 +29,9 @@ Route::middleware(['cors'])->group(function () {
         return response()->json();
     });
     Route::post('/register', 'UserController@register');
+
+    Route::options('/learn', function () {
+        return response()->json();
+    });
+    Route::post('/learn', 'LearnController@register');
 });
