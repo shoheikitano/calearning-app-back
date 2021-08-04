@@ -25,6 +25,11 @@ Route::middleware(['cors'])->group(function () {
     });
     Route::post('/login', 'UserController@login');
 
+    Route::options('/logout', function () {
+        return response()->json();
+    });
+    Route::post('/logout', 'UserController@logout');
+
     Route::options('/register', function () {
         return response()->json();
     });
@@ -34,4 +39,6 @@ Route::middleware(['cors'])->group(function () {
         return response()->json();
     });
     Route::post('/learn', 'LearnController@register');
+
+    Route::get('/calearning', 'LearnController@calearning');
 });

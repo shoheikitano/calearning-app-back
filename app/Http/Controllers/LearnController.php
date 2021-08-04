@@ -25,7 +25,15 @@ class LearnController extends Controller
         $date_end->format('yyyy-MM-dd HH:mm:ss');
         $learn->learn_datetime_end = $date_end;
 
+        $learn->color = $request->color;
+
         $result = $learn->save();
+        return $learn;
+    }
+
+    public function calearning(Request $request) {
+        $learn = Learn::select('title AS name', 'learn_datetime_start as start'
+        , 'learn_datetime_end as end', 'color')->where('user_id', $request->user_id)->get();
         return $learn;
     }
 }

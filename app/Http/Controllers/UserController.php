@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\User;
+use Illuminate\Support\Facades\Session;
+use Cookie;
 
 class UserController extends Controller
 {
     public function login(Request $request) {
-        return User::where('user_id', $request->user_id)
+        $user = User::where('user_id', $request->user_id)
             ->where('password', $request->password)->first();
+        return $user;
     }
 
     public function register(Request $request) {
@@ -20,7 +23,14 @@ class UserController extends Controller
         $user->job = $request->job_id;
         $user->profile = $request->profile;
         $result = $user->save();
-        return User::where('user_name', $request->user_name)
+        $user_ins = User::where('user_name', $request->user_name)
             ->where('password', $request->password)->first();
+        return $user_ins;
     }
+
+    public function logout(Request $request) {
+        return [
+            "user_id" => null,
+        ];
+    }  
 }
