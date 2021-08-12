@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Learn;
 use DateTime;
+use Illuminate\Support\Facades\DB;
 
 class LearnController extends Controller
 {
@@ -34,6 +35,21 @@ class LearnController extends Controller
     public function calearning(Request $request) {
         $learn = Learn::select('title AS name', 'learn_datetime_start as start'
         , 'learn_datetime_end as end', 'color')->where('user_id', $request->user_id)->get();
+        return $learn;
+    }
+
+    public function getLearns(Request $request) {
+        if (empty($request->message)) {
+            //$learn = Learn::where('user_id', $request->user_id)->get();
+            $learn = DB::table('learns')
+                ->leftjoin('likes', 'likes.learn_id', '=', 'learns.learn_id')
+                ->leftjoin('users', 'learns.user_id', '=', 'users.user_id')
+                ->where('learns.user_id', $request->user_id)
+                ->get();
+        } else {
+            $learn = Learn::where('user_id', $request->user_id)
+            ->where('title', $request->message)->get();
+        }
         return $learn;
     }
 }

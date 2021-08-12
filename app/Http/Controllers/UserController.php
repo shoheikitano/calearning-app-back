@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\User;
-use Illuminate\Support\Facades\Session;
-use Cookie;
+use App\Follow;
+use App\Learn;
+use App\Likes;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -32,5 +34,98 @@ class UserController extends Controller
         return [
             "user_id" => null,
         ];
-    }  
+    }
+    public function getProfile(Request $request) {
+        $profile = User::where('user_id', $request->user_id)
+                ->first();
+        return $profile;
+    }
+
+    public function getFollow(Request $request) {
+        if (empty($request->message)) {
+            //$learn = Learn::where('user_id', $request->user_id)->get();
+            $friends = DB::table('follows')
+                ->join('users', 'users.user_id', '=', 'follows.user_id_follow')
+                ->where('follows.user_id_follow', $request->user_id)
+                ->get();
+        } else {
+            $friends = DB::table('follows')
+                ->join('users', 'users.user_id', '=', 'follows.user_id_follow')
+                ->where('follows.user_id_follow', $request->user_id)
+                ->where('users.user_name', $request->message)
+                ->get();
+        }
+        return $friends;
+    }
+
+    public function getFollower(Request $request) {
+        if (empty($request->message)) {
+            $friends = DB::table('follows')
+                ->join('users', 'users.user_id', '=', 'follows.user_id_follower')
+                ->where('follows.user_id_follower', $request->user_id)
+                ->get();
+        } else {
+            $friends = DB::table('follows')
+                ->join('users', 'users.user_id', '=', 'follows.user_id_follower')
+                ->where('follows.user_id_follower', $request->user_id)
+                ->where('users.user_name', $request->message)
+                ->get();
+        }
+        return $friends;
+    }
+
+    public function getUsers(Request $request) {
+        if (empty($request->message)) {
+            $friends = DB::table('users')
+                ->leftjoin('follows', 'follows.user_id_follower', '=', 'users.user_id')
+                ->where('users.user_id', '<>', $request->user_id)
+                ->orderBy('users.user_id')
+                ->get();
+        } else {
+            $friends = DB::table('users')
+                ->leftjoin('follows', 'follows.user_id_follower', '=', 'users.user_id')
+                ->where('users.user_id', '<>', $request->user_id)
+                ->where('users.user_name', $request->message)
+                ->orderBy('users.user_id')
+                ->get();
+        }
+        return $friends;
+    }
+
+    public function follow(Request $request) {
+        $follow = new Follow();
+        $follow->user_id_follow = $request->user_id_follow;
+        $follow->user_id_follower = $request->user_id;
+        $result = $follow->save();
+        return $follow;
+    }
+
+    public function refollow(Request $request) {
+        $follow = new Follow();
+        $follow->where('user_id_follow', $request->user_id_follow)
+            ->where('user_id_follower', $request->user_id)
+            ->delete();
+        return $follow;
+    }
+
+    public function getLearnsCount(Request $request) {
+        $learns_count = Learn::select(DB::raw("COUNT(*) AS learns_count"))->where('user_id', $request->user_id)
+                ->first();
+        return $learns_count;
+    }
+
+    public function getLikesCount(Request $request) {
+        $learns_count = DB::table('learns')
+                ->join('likes', 'likes.learn_id', '=', 'learns.learn_id')
+                ->select(DB::raw("count(*) AS likes_count"))
+                ->where('learns.user_id', $request->user_id)
+                ->get();
+        return $learns_count;
+    }
+
+    public function getFriendsCount(Request $request) {
+        $learns_count = Follow::select(DB::raw("count(*) AS friends_count"))->where('user_id_follow', $request->user_id)
+                ->first();
+        return $learns_count;
+    }
 }

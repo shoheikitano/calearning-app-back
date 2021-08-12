@@ -41,4 +41,32 @@ Route::middleware(['cors'])->group(function () {
     Route::post('/learn', 'LearnController@register');
 
     Route::get('/calearning', 'LearnController@calearning');
+
+    Route::get('/learns', 'LearnController@getLearns');
+
+    Route::get('/getProfile', 'UserController@getProfile');
+
+    Route::get('/getFollow', 'UserController@getFollow');
+
+    Route::get('/getFollower', 'UserController@getFollower');
+
+    Route::get('/getUsers', 'UserController@getUsers');
+
+    Route::options('/follow', function () {
+        return response()->json();
+    });
+
+    Route::post('/follow', 'UserController@follow');
+
+    Route::options('/refollow', function () {
+        return response()->json();
+    });
+
+    Route::post('/refollow', 'UserController@refollow');
+
+    Route::get('/getLearnsCount', 'UserController@getLearnsCount');
+
+    Route::get('/getLikesCount', 'UserController@getLikesCount');
+
+    Route::get('/getFriendsCount', 'UserController@getFriendsCount');
 });
