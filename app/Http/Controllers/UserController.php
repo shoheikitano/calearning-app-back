@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\User;
 use App\Follow;
 use App\Learn;
-use App\Likes;
+use App\Like;
 use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
@@ -109,7 +109,7 @@ class UserController extends Controller
     }
 
     public function getLearnsCount(Request $request) {
-        $learns_count = Learn::select(DB::raw("COUNT(*) AS learns_count"))->where('user_id', $request->user_id)
+        $learns_count = Learn::select(DB::raw("COALESCE(COUNT(*),0) AS learns_count"))->where('user_id', $request->user_id)
                 ->first();
         return $learns_count;
     }
@@ -117,14 +117,20 @@ class UserController extends Controller
     public function getLikesCount(Request $request) {
         $learns_count = DB::table('learns')
                 ->join('likes', 'likes.learn_id', '=', 'learns.learn_id')
-                ->select(DB::raw("count(*) AS likes_count"))
+                ->select(DB::raw("COALESCE(COUNT(*),0) AS likes_count"))
                 ->where('learns.user_id', $request->user_id)
                 ->get();
-        return $learns_count;
+        $likes_count;
+        foreach ($learns_count as $item) {
+            $likes_count = $item->likes_count;
+        }
+        return [
+            "likes_count" => $likes_count,
+        ];
     }
 
     public function getFriendsCount(Request $request) {
-        $learns_count = Follow::select(DB::raw("count(*) AS friends_count"))->where('user_id_follow', $request->user_id)
+        $learns_count = Follow::select(DB::raw("COALESCE(COUNT(*),0) AS friends_count"))->where('user_id_follow', $request->user_id)
                 ->first();
         return $learns_count;
     }

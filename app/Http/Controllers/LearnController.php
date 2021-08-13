@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Learn;
+use App\Like;
+use App\User;
 use DateTime;
 use Illuminate\Support\Facades\DB;
 
@@ -39,16 +41,136 @@ class LearnController extends Controller
     }
 
     public function getLearns(Request $request) {
+        $user_id = $request->user_id;
         if (empty($request->message)) {
             //$learn = Learn::where('user_id', $request->user_id)->get();
             $learn = DB::table('learns')
-                ->leftjoin('likes', 'likes.learn_id', '=', 'learns.learn_id')
+                ->leftjoin('likes', function ($join) use($user_id) {
+                    $join->on('likes.learn_id', '=', 'learns.learn_id')
+                      ->where('likes.user_id', '=', $user_id);
+                    })
+                ->leftjoin('retweets', function ($join) use($user_id) {
+                    $join->on('retweets.learn_id', '=', 'learns.learn_id')
+                      ->where('retweets.user_id', '=', $user_id);
+                    })
+                ->leftjoin('comments', function ($join) use($user_id) {
+                    $join->on('comments.learn_id', '=', 'learns.learn_id')
+                      ->where('comments.user_id', '=', $user_id);
+                    })
                 ->leftjoin('users', 'learns.user_id', '=', 'users.user_id')
-                ->where('learns.user_id', $request->user_id)
+                ->select('learns.learn_id', 'learns.title', 'learns.detail', 'users.user_name', 'likes.like_id'
+                , 'retweets.retweet_id', 'comments.comment_id')
+                ->where('learns.user_id', $user_id)
                 ->get();
         } else {
-            $learn = Learn::where('user_id', $request->user_id)
-            ->where('title', $request->message)->get();
+            $learn = DB::table('learns')
+                ->leftjoin('likes', function ($join) use($user_id){
+                    $join->on('likes.learn_id', '=', 'learns.learn_id')
+                        ->where('likes.user_id', '=', $user_id);
+                    })
+                ->leftjoin('retweets', function ($join) use($user_id) {
+                    $join->on('retweets.learn_id', '=', 'learns.learn_id')
+                      ->where('retweets.user_id', '=', $user_id);
+                    })
+                ->leftjoin('comments', function ($join) use($user_id) {
+                    $join->on('comments.learn_id', '=', 'learns.learn_id')
+                      ->where('comments.user_id', '=', $user_id);
+                    })
+                ->leftjoin('users', 'learns.user_id', '=', 'users.user_id')
+                ->select('learns.learn_id', 'learns.title', 'learns.detail', 'users.user_name', 'likes.like_id'
+                , 'retweets.retweet_id', 'comments.comment_id')
+                ->where('learns.user_id', $user_id)
+                ->where('learns.title', $request->message)->get();
+        }
+        return $learn;
+    }
+
+    public function getAllLearns(Request $request) {
+        $user_id = $request->user_id;
+        if (empty($request->message)) {
+            //$learn = Learn::where('user_id', $request->user_id)->get();
+            $learn = DB::table('learns')
+                ->leftjoin('likes', function ($join) use($user_id) {
+                    $join->on('likes.learn_id', '=', 'learns.learn_id')
+                      ->where('likes.user_id', '=', $user_id);
+                    })
+                ->leftjoin('retweets', function ($join) use($user_id) {
+                    $join->on('retweets.learn_id', '=', 'learns.learn_id')
+                      ->where('retweets.user_id', '=', $user_id);
+                    })
+                ->leftjoin('comments', function ($join) use($user_id) {
+                    $join->on('comments.learn_id', '=', 'learns.learn_id')
+                      ->where('comments.user_id', '=', $user_id);
+                    })
+                ->leftjoin('users', 'learns.user_id', '=', 'users.user_id')
+                ->select('learns.learn_id', 'learns.title', 'learns.detail', 'users.user_name', 'likes.like_id'
+                , 'retweets.retweet_id', 'comments.comment_id')
+                ->get();
+        } else {
+            $learn = DB::table('learns')
+                ->leftjoin('likes', function ($join) use($user_id){
+                    $join->on('likes.learn_id', '=', 'learns.learn_id')
+                        ->where('likes.user_id', '=', $user_id);
+                    })
+                ->leftjoin('retweets', function ($join) use($user_id) {
+                    $join->on('retweets.learn_id', '=', 'learns.learn_id')
+                      ->where('retweets.user_id', '=', $user_id);
+                    })
+                ->leftjoin('comments', function ($join) use($user_id) {
+                    $join->on('comments.learn_id', '=', 'learns.learn_id')
+                      ->where('comments.user_id', '=', $user_id);
+                    })
+                ->leftjoin('users', 'learns.user_id', '=', 'users.user_id')
+                ->select('learns.learn_id', 'learns.title', 'learns.detail', 'users.user_name', 'likes.like_id'
+                , 'retweets.retweet_id', 'comments.comment_id')
+                ->where('title', $request->message)->get();
+        }
+        return $learn;
+    }
+
+    public function getFollowLearns(Request $request) {
+        $user_id = $request->user_id;
+        if (empty($request->message)) {
+            //$learn = Learn::where('user_id', $request->user_id)->get();
+            $learn = DB::table('follows')
+                ->leftjoin('learns', 'learns.user_id', '=', 'follows.user_id_follower')
+                ->leftjoin('likes', function ($join) use($user_id) {
+                    $join->on('likes.learn_id', '=', 'learns.learn_id')
+                      ->where('likes.user_id', '=', $user_id);
+                    })
+                ->leftjoin('retweets', function ($join) use($user_id) {
+                    $join->on('retweets.learn_id', '=', 'learns.learn_id')
+                      ->where('retweets.user_id', '=', $user_id);
+                    })
+                ->leftjoin('comments', function ($join) use($user_id) {
+                    $join->on('comments.learn_id', '=', 'learns.learn_id')
+                      ->where('comments.user_id', '=', $user_id);
+                    })
+                ->leftjoin('users', 'learns.user_id', '=', 'users.user_id')
+                ->select('learns.learn_id', 'learns.title', 'learns.detail', 'users.user_name', 'likes.like_id'
+                , 'retweets.retweet_id', 'comments.comment_id')
+                ->where('follows.user_id_follow', $user_id)
+                ->get();
+        } else {
+            $learn = DB::table('follows')
+                ->leftjoin('learns', 'learns.user_id', '=', 'follows.user_id_follower')
+                ->leftjoin('likes', function ($join) use($user_id){
+                    $join->on('likes.learn_id', '=', 'learns.learn_id')
+                        ->where('likes.user_id', '=', $user_id);
+                    })
+                ->leftjoin('retweets', function ($join) use($user_id) {
+                    $join->on('retweets.learn_id', '=', 'learns.learn_id')
+                      ->where('retweets.user_id', '=', $user_id);
+                    })
+                ->leftjoin('comments', function ($join) use($user_id) {
+                    $join->on('comments.learn_id', '=', 'learns.learn_id')
+                      ->where('comments.user_id', '=', $user_id);
+                    })
+                ->leftjoin('users', 'learns.user_id', '=', 'users.user_id')
+                ->select('learns.learn_id', 'learns.title', 'learns.detail', 'users.user_name', 'likes.like_id'
+                , 'retweets.retweet_id', 'comments.comment_id')
+                ->where('follows.user_id_follow', $user_id)
+                ->where('learns.title', $request->message)->get();
         }
         return $learn;
     }

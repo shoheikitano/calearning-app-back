@@ -44,6 +44,10 @@ Route::middleware(['cors'])->group(function () {
 
     Route::get('/learns', 'LearnController@getLearns');
 
+    Route::get('/followlearns', 'LearnController@getFollowLearns');
+
+    Route::get('/alllearns', 'LearnController@getAllLearns');
+
     Route::get('/getProfile', 'UserController@getProfile');
 
     Route::get('/getFollow', 'UserController@getFollow');
