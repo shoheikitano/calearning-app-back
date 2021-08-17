@@ -36,7 +36,12 @@ class LearnController extends Controller
 
     public function calearning(Request $request) {
         $learn = Learn::select('title AS name', 'learn_datetime_start as start'
-        , 'learn_datetime_end as end', 'color')->where('user_id', $request->user_id)->get();
+        , 'learn_datetime_end as end', 'color', 'learn_id')->where('user_id', $request->user_id)->get();
+        return $learn;
+    }
+
+    public function getLearn(Request $request) {
+        $learn = Learn::where('learn_id', $request->learn_id)->first();
         return $learn;
     }
 
@@ -173,5 +178,21 @@ class LearnController extends Controller
                 ->where('learns.title', $request->message)->get();
         }
         return $learn;
+    }
+
+    public function like(Request $request) {
+        $like = new Like();
+        $like->learn_id = $request->learn_id;
+        $like->user_id = $request->user_id;
+        $result = $like->save();
+        return $like;
+    }
+
+    public function reLike(Request $request) {
+        $like = new Like();
+        $like->where('learn_id', $request->learn_id)
+            ->where('user_id', $request->user_id)
+            ->delete();
+        return $like;
     }
 }

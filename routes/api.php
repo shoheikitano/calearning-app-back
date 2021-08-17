@@ -44,6 +44,8 @@ Route::middleware(['cors'])->group(function () {
 
     Route::get('/learns', 'LearnController@getLearns');
 
+    Route::get('/getLearn', 'LearnController@getLearn');
+
     Route::get('/followlearns', 'LearnController@getFollowLearns');
 
     Route::get('/alllearns', 'LearnController@getAllLearns');
@@ -55,6 +57,18 @@ Route::middleware(['cors'])->group(function () {
     Route::get('/getFollower', 'UserController@getFollower');
 
     Route::get('/getUsers', 'UserController@getUsers');
+
+    Route::options('/like', function () {
+        return response()->json();
+    });
+
+    Route::post('/like', 'LearnController@like');
+
+    Route::options('/relike', function () {
+        return response()->json();
+    });
+
+    Route::post('/relike', 'LearnController@reLike');
 
     Route::options('/follow', function () {
         return response()->json();
