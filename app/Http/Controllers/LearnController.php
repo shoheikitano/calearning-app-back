@@ -34,6 +34,47 @@ class LearnController extends Controller
         return $learn;
     }
 
+    public function updLearn(Request $request) {
+        $learn = new Learn();
+        $learn->title = $request->title;
+        $learn->detail = $request->detail;
+        $learn->user_id = $request->user_id;
+        $learn->category_id = $request->category_id;
+        $learn->language_id = $request->language_id;
+        
+        $date_start = new DateTime($request->learn_datetime_start);
+        $date_start->format('yyyy-MM-dd HH:mm:ss');
+        $learn->learn_datetime_start = $date_start;
+        
+        $date_end = new DateTime($request->learn_datetime_end);
+        $date_end->format('yyyy-MM-dd HH:mm:ss');
+        $learn->learn_datetime_end = $date_end;
+
+        $learn->color = $request->color;
+
+        $learn->learn_id = $request->learn_id;
+
+        Learn::where('learn_id', '=', $request->learn_id)->update([
+            'title' => $request->title,
+            'detail' => $request->detail,
+            'user_id' => $request->user_id,
+            'category_id' => $request->category_id,
+            'language_id' => $request->category_id,
+            'learn_datetime_start' => $date_start,
+            'learn_datetime_end' => $date_end,
+            'color' => $request->color,
+        ]);
+        return $learn;
+    }
+
+    public function delLearn(Request $request) {
+        $learn = new Learn();
+
+        $learn->where('learn_id', '=', $request->learn_id)->delete();
+
+        return $learn;
+    }
+
     public function calearning(Request $request) {
         $learn = Learn::select('title AS name', 'learn_datetime_start as start'
         , 'learn_datetime_end as end', 'color', 'learn_id')->where('user_id', $request->user_id)->get();
@@ -54,17 +95,13 @@ class LearnController extends Controller
                     $join->on('likes.learn_id', '=', 'learns.learn_id')
                       ->where('likes.user_id', '=', $user_id);
                     })
-                ->leftjoin('retweets', function ($join) use($user_id) {
-                    $join->on('retweets.learn_id', '=', 'learns.learn_id')
-                      ->where('retweets.user_id', '=', $user_id);
-                    })
                 ->leftjoin('comments', function ($join) use($user_id) {
                     $join->on('comments.learn_id', '=', 'learns.learn_id')
                       ->where('comments.user_id', '=', $user_id);
                     })
                 ->leftjoin('users', 'learns.user_id', '=', 'users.user_id')
                 ->select('learns.learn_id', 'learns.title', 'learns.detail', 'users.user_name', 'likes.like_id'
-                , 'retweets.retweet_id', 'comments.comment_id')
+                , 'comments.comment_id', 'comments.comment_content')
                 ->where('learns.user_id', $user_id)
                 ->get();
         } else {
@@ -73,17 +110,13 @@ class LearnController extends Controller
                     $join->on('likes.learn_id', '=', 'learns.learn_id')
                         ->where('likes.user_id', '=', $user_id);
                     })
-                ->leftjoin('retweets', function ($join) use($user_id) {
-                    $join->on('retweets.learn_id', '=', 'learns.learn_id')
-                      ->where('retweets.user_id', '=', $user_id);
-                    })
                 ->leftjoin('comments', function ($join) use($user_id) {
                     $join->on('comments.learn_id', '=', 'learns.learn_id')
                       ->where('comments.user_id', '=', $user_id);
                     })
                 ->leftjoin('users', 'learns.user_id', '=', 'users.user_id')
                 ->select('learns.learn_id', 'learns.title', 'learns.detail', 'users.user_name', 'likes.like_id'
-                , 'retweets.retweet_id', 'comments.comment_id')
+                , 'comments.comment_id', 'comments.comment_content')
                 ->where('learns.user_id', $user_id)
                 ->where('learns.title', $request->message)->get();
         }
@@ -99,17 +132,13 @@ class LearnController extends Controller
                     $join->on('likes.learn_id', '=', 'learns.learn_id')
                       ->where('likes.user_id', '=', $user_id);
                     })
-                ->leftjoin('retweets', function ($join) use($user_id) {
-                    $join->on('retweets.learn_id', '=', 'learns.learn_id')
-                      ->where('retweets.user_id', '=', $user_id);
-                    })
                 ->leftjoin('comments', function ($join) use($user_id) {
                     $join->on('comments.learn_id', '=', 'learns.learn_id')
                       ->where('comments.user_id', '=', $user_id);
                     })
                 ->leftjoin('users', 'learns.user_id', '=', 'users.user_id')
                 ->select('learns.learn_id', 'learns.title', 'learns.detail', 'users.user_name', 'likes.like_id'
-                , 'retweets.retweet_id', 'comments.comment_id')
+                , 'comments.comment_id', 'comments.comment_content')
                 ->get();
         } else {
             $learn = DB::table('learns')
@@ -117,17 +146,13 @@ class LearnController extends Controller
                     $join->on('likes.learn_id', '=', 'learns.learn_id')
                         ->where('likes.user_id', '=', $user_id);
                     })
-                ->leftjoin('retweets', function ($join) use($user_id) {
-                    $join->on('retweets.learn_id', '=', 'learns.learn_id')
-                      ->where('retweets.user_id', '=', $user_id);
-                    })
                 ->leftjoin('comments', function ($join) use($user_id) {
                     $join->on('comments.learn_id', '=', 'learns.learn_id')
                       ->where('comments.user_id', '=', $user_id);
                     })
                 ->leftjoin('users', 'learns.user_id', '=', 'users.user_id')
                 ->select('learns.learn_id', 'learns.title', 'learns.detail', 'users.user_name', 'likes.like_id'
-                , 'retweets.retweet_id', 'comments.comment_id')
+                , 'comments.comment_id', 'comments.comment_content')
                 ->where('title', $request->message)->get();
         }
         return $learn;
@@ -143,17 +168,13 @@ class LearnController extends Controller
                     $join->on('likes.learn_id', '=', 'learns.learn_id')
                       ->where('likes.user_id', '=', $user_id);
                     })
-                ->leftjoin('retweets', function ($join) use($user_id) {
-                    $join->on('retweets.learn_id', '=', 'learns.learn_id')
-                      ->where('retweets.user_id', '=', $user_id);
-                    })
                 ->leftjoin('comments', function ($join) use($user_id) {
                     $join->on('comments.learn_id', '=', 'learns.learn_id')
                       ->where('comments.user_id', '=', $user_id);
                     })
                 ->leftjoin('users', 'learns.user_id', '=', 'users.user_id')
                 ->select('learns.learn_id', 'learns.title', 'learns.detail', 'users.user_name', 'likes.like_id'
-                , 'retweets.retweet_id', 'comments.comment_id')
+                , 'comments.comment_id', 'comments.comment_content')
                 ->where('follows.user_id_follow', $user_id)
                 ->get();
         } else {
@@ -163,17 +184,13 @@ class LearnController extends Controller
                     $join->on('likes.learn_id', '=', 'learns.learn_id')
                         ->where('likes.user_id', '=', $user_id);
                     })
-                ->leftjoin('retweets', function ($join) use($user_id) {
-                    $join->on('retweets.learn_id', '=', 'learns.learn_id')
-                      ->where('retweets.user_id', '=', $user_id);
-                    })
                 ->leftjoin('comments', function ($join) use($user_id) {
                     $join->on('comments.learn_id', '=', 'learns.learn_id')
                       ->where('comments.user_id', '=', $user_id);
                     })
                 ->leftjoin('users', 'learns.user_id', '=', 'users.user_id')
                 ->select('learns.learn_id', 'learns.title', 'learns.detail', 'users.user_name', 'likes.like_id'
-                , 'retweets.retweet_id', 'comments.comment_id')
+                , 'comments.comment_id', 'comments.comment_content')
                 ->where('follows.user_id_follow', $user_id)
                 ->where('learns.title', $request->message)->get();
         }

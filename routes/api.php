@@ -40,6 +40,16 @@ Route::middleware(['cors'])->group(function () {
     });
     Route::post('/learn', 'LearnController@register');
 
+    Route::options('/updLearn', function () {
+        return response()->json();
+    });
+    Route::post('/updLearn', 'LearnController@updLearn');
+
+    Route::options('/delLearn', function () {
+        return response()->json();
+    });
+    Route::post('/delLearn', 'LearnController@delLearn');
+
     Route::get('/calearning', 'LearnController@calearning');
 
     Route::get('/learns', 'LearnController@getLearns');
