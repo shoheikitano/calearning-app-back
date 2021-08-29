@@ -7,6 +7,7 @@ use App\User;
 use App\Follow;
 use App\Learn;
 use App\Like;
+use DateTime;
 use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
@@ -113,6 +114,21 @@ class UserController extends Controller
                 ->first();
         return $learns_count;
     }
+
+    public function getLearnsCountInDate(Request $request) {
+        $date = new DateTime($request->date);
+        $date->format('yyyy-MM-dd'. ' 00:00:00');
+        $date2 = new DateTime($request->date);
+        $date2->modify('+1 days')->format('yyyy-MM-dd'. ' 00:00:00');
+        
+        $learns_count = Learn::select(DB::raw("COALESCE(COUNT(*),0) AS learns_count"))
+                ->where('user_id', $request->user_id)
+                ->where('updated_at','>', $date)
+                ->where('updated_at','<', $date2)
+                ->first();
+        return $learns_count;
+    }
+
 
     public function getLikesCount(Request $request) {
         $learns_count = DB::table('learns')

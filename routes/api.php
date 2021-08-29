@@ -80,6 +80,18 @@ Route::middleware(['cors'])->group(function () {
 
     Route::post('/relike', 'LearnController@reLike');
 
+    Route::options('/insComment', function () {
+        return response()->json();
+    });
+
+    Route::post('/insComment', 'LearnController@insComment');
+
+    Route::options('/delComment', function () {
+        return response()->json();
+    });
+
+    Route::post('/delComment', 'LearnController@delComment');
+
     Route::options('/follow', function () {
         return response()->json();
     });
@@ -93,6 +105,8 @@ Route::middleware(['cors'])->group(function () {
     Route::post('/refollow', 'UserController@refollow');
 
     Route::get('/getLearnsCount', 'UserController@getLearnsCount');
+
+    Route::get('/getLearnsCountInDate', 'UserController@getLearnsCountInDate');
 
     Route::get('/getLikesCount', 'UserController@getLikesCount');
 

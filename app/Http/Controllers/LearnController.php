@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Learn;
 use App\Like;
 use App\User;
+use App\Comment;
 use DateTime;
 use Illuminate\Support\Facades\DB;
 
@@ -211,5 +212,21 @@ class LearnController extends Controller
             ->where('user_id', $request->user_id)
             ->delete();
         return $like;
+    }
+
+    public function insComment(Request $request) {
+        $comment = new Comment();
+        $comment->learn_id = $request->learn_id;
+        $comment->user_id = $request->user_id;
+        $comment->comment_content = $request->comment_content;
+        $result = $comment->save();
+        return $comment;
+    }
+
+    public function delComment(Request $request) {
+        $comment = new Comment();
+        $comment->where('comment_id', $request->comment_id)
+            ->delete();
+        return $comment;
     }
 }
