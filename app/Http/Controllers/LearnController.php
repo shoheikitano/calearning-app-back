@@ -124,6 +124,41 @@ class LearnController extends Controller
         return $learn;
     }
 
+    public function getLearnsForRanking(Request $request) {
+        $user_id = $request->user_id;
+        if (empty($request->message)) {
+            //$learn = Learn::where('user_id', $request->user_id)->get();
+            $learn = DB::table('learns')
+                ->leftjoin('likes', function ($join) use($user_id) {
+                    $join->on('likes.learn_id', '=', 'learns.learn_id');
+                    })
+                ->leftjoin('comments', function ($join) use($user_id) {
+                    $join->on('comments.learn_id', '=', 'learns.learn_id');
+                    })
+                ->leftjoin('users', 'learns.user_id', '=', 'users.user_id')
+                ->select('learns.learn_id', 'learns.title', 'learns.detail', 'users.user_name'
+                    , DB::raw("COALESCE(COUNT(*),0) AS likes_count"))
+                ->groupBy('learns.learn_id', 'learns.title', 'learns.detail', 'users.user_name')
+                ->where('learns.user_id', $user_id)
+                ->get();
+        } else {
+            $learn = DB::table('learns')
+            ->leftjoin('likes', function ($join) use($user_id) {
+                $join->on('likes.learn_id', '=', 'learns.learn_id');
+                })
+            ->leftjoin('comments', function ($join) use($user_id) {
+                $join->on('comments.learn_id', '=', 'learns.learn_id');
+                })
+            ->leftjoin('users', 'learns.user_id', '=', 'users.user_id')
+            ->select('learns.learn_id', 'learns.title', 'learns.detail', 'users.user_name'
+                , DB::raw("COALESCE(COUNT(*),0) AS likes_count"))
+            ->groupBy('learns.learn_id', 'learns.title', 'learns.detail', 'users.user_name')
+                ->where('learns.user_id', $user_id)
+                ->where('learns.title', $request->message)->get();
+        }
+        return $learn;
+    }
+
     public function getAllLearns(Request $request) {
         $user_id = $request->user_id;
         if (empty($request->message)) {
